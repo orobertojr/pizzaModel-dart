@@ -1,0 +1,7 @@
+name: pizzaria
+version: 0.0.1
+environment:
+  sdk: '>=2.10.0 <3.0.0'
+dependencies:
+  sqlite3: ^1.0.0
+  path: ^1.8.0
