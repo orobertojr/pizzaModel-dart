@@ -65,7 +65,7 @@ class ProductHelper {
       maps.add(element);
     });
     if (maps.length > 0) {
-      return Product.fromMap(maps.first);
+      return await Product.fromMap(maps.first);
     } else {
       return null;
     }
