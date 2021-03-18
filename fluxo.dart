@@ -1,19 +1,26 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'productClass.dart';
 import 'helpers.dart';
 import 'services.dart';
+import 'pedidoClass.dart';
+import 'pedidoHelpers.dart';
+import 'dart:math';
+import 'pedidoService.dart';
 
 ProductHelper helper = new ProductHelper();
+PedidoHelper phelper = new PedidoHelper();
 
 class Flow {
   void fluxoPrincipal() {
     print("BEM VINDO! ESCOLHA UMA OPÇÃO:");
     print("1 - Fazer Pedido");
     print("2 - Olhar cardapio");
-    print("3 - Cancelar Pedido");
+    print("3 - Excluir todos os Pedido");
     print("4 - Administrativo");
     print("5 - Deletar Cadápio");
-    print("6 - sair");
+    print("6 - Olhar Todos os Pedidos");
+    print("7 - sair");
     var input = stdin.readLineSync();
     switch (input) {
       case "1":
@@ -28,7 +35,7 @@ class Flow {
         break;
       case "3":
         {
-          cancelarPedido();
+          excluiTodosPedidos();
         }
         break;
       case "4":
@@ -39,6 +46,11 @@ class Flow {
       case "5":
         {
           limparCardapio();
+        }
+        break;
+      case "6":
+        {
+          verTodosPedidos();
         }
         break;
       default:
@@ -64,17 +76,62 @@ class Flow {
     }
   }
 
-  void fazerPedido() {
-    print("Aqui é fluxo pedido");
+  void fazerPedido() async {
+    await productService().getAllProducts();
+    var continuarPedindo = true;
+    var rad = new Random();
+    int cod = rad.nextInt(1000);
+    List<int> produtos = [];
+    print("Informe seu nome");
+    var nome = stdin.readLineSync();
+    while (continuarPedindo) {
+      print("Informe o id do produto");
+      var idProd = stdin.readLineSync();
+      int id = int.parse(idProd);
+      produtos.add(id);
+      print("Deseja continuar:(S - sim ou N- não)");
+      var resp = stdin.readLineSync();
+      if (resp == 'S') {
+        continue;
+      } else {
+        continuarPedindo = false;
+      }
+    }
+
+    double price = 0.0;
+    for (int i in produtos) {
+      Product produto = await productService().getProductPeloId(i);
+      price = price + double.parse(produto.price);
+    }
+    for (int j in produtos) {
+      Pedido pedidoTeste = Pedido(nome, cod, j);
+      pedidoTeste.price = price.toString();
+      pedidoTeste.codigo = cod;
+      phelper.savePedido(pedidoTeste);
+    }
+    print("Pedido salvo seu codigo é: ");
+    print(cod);
+    fluxoPrincipal();
   }
 
-  void verCardapio() {
-    productService().getAllProducts();
+  void verCardapio() async {
+    await productService().getAllProducts();
+    fluxoPrincipal();
+  }
+
+  void verTodosPedidos() async {
+    await PedidoService().getAllPedidos();
+    fluxoPrincipal();
   }
 
   void cancelarPedido() {
     print(
         "Estamos cancelando seu pedido. Pedimos desculpas pelos transtornos!");
+  }
+
+  void excluiTodosPedidos() {
+    phelper.deleteAllTable();
+    fluxoPrincipal();
   }
 
   void limparCardapio() {

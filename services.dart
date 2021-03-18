@@ -1,8 +1,11 @@
 import 'helpers.dart';
 import 'productClass.dart';
+import 'pedidoClass.dart';
+import 'pedidoHelpers.dart';
 
 List<Product> products = [];
 ProductHelper helper = ProductHelper();
+PedidoHelper phelper = PedidoHelper();
 Product product;
 
 class productService {
@@ -13,6 +16,11 @@ class productService {
   Future<Product> getProduct(Product product) async {
     Product singleProduct = await helper.getProduct(product.id);
     return singleProduct;
+  }
+
+  Future<Product> getProductPeloId(int id) async {
+    Product singleProduct = await helper.getProduct(id);
+    return await singleProduct;
   }
 
   void deleteProduct(int id) {
